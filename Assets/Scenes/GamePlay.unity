@@ -119,6 +119,52 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &277010554
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 277010556}
+  - component: {fileID: 277010555}
+  m_Layer: 0
+  m_Name: DrawPile
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &277010555
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 277010554}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe43bb5ebb0f7a94693f7bf0ae02ddd7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  resourcesFolder: Sprites
+  shuffleOnStart: 1
+--- !u!4 &277010556
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 277010554}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.103379086, y: -0.13164976, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &487634053
 GameObject:
   m_ObjectHideFlags: 0
@@ -438,7 +484,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0.32477438, g: 0.47906753, b: 0.66431296, a: 1}
+  m_BackGroundColor: {r: 0.65875673, g: 0.30793926, b: 0.30009687, a: 1}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -683,6 +729,7 @@ MonoBehaviour:
   handParent: {fileID: 862395514}
   spawnPoint: {fileID: 994783622}
   splineContainer: {fileID: 488072525}
+  cardDatabase: []
 --- !u!4 &1041382507
 Transform:
   m_ObjectHideFlags: 0
@@ -787,3 +834,4 @@ SceneRoots:
   - {fileID: 488072526}
   - {fileID: 487634057}
   - {fileID: 1591821507}
+  - {fileID: 277010556}
