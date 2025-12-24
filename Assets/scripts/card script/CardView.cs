@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -12,6 +13,9 @@ public class CardView : MonoBehaviour,
     [Header("References")]
     [SerializeField] private Image highlightGray;
     [SerializeField] private Image highlightGold;
+
+    [Header("Artwork (optional)")]
+    [SerializeField] private Image artworkImage;
 
     [Header("Tweaks (serialized)")]
     [SerializeField, Tooltip("Smooth follow duration when card follows pointer.")]
@@ -46,7 +50,7 @@ public class CardView : MonoBehaviour,
     private float cancelMoveThreshold = 18f;
 
     [SerializeField, Tooltip("Small threshold (px) of movement between frames that counts as 'movement' for cancelling stationary accumulation.")]
-    private float stationaryMoveThreshold = 2f; // <-- جدید: بین فریمی
+    private float stationaryMoveThreshold = 2f;
 
     [Header("Manager")]
     public HandManager myHandManager;
@@ -80,13 +84,15 @@ public class CardView : MonoBehaviour,
     private bool isZooming = false;
     private bool zoomAttemptedThisPress = false; // only one zoom attempt per press
     private float stationaryAccum;
-    // note: lastMousePosForStationary is used to compare frame-to-frame movement
     private Vector2 lastMousePosForStationary;
     private Coroutine holdToZoomCoroutine;
 
     // hover/selection
     private bool isHover = false;
     private bool isSelected = false;
+
+    // Model binding
+    private Card model;
 
     void Awake()
     {
@@ -95,7 +101,56 @@ public class CardView : MonoBehaviour,
         homePos = rt.anchoredPosition;
         homeRot = rt.localRotation;
         HideHighlights();
+
+        // If artworkImage not assigned, try find a reasonable Image child
+        if (artworkImage == null)
+        {
+            var imgs = GetComponentsInChildren<Image>(true);
+            foreach (var img in imgs)
+            {
+                if (img == highlightGray || img == highlightGold) continue;
+                artworkImage = img;
+                break;
+            }
+        }
     }
+
+    // -------------- Model binding API --------------
+    public void Bind(Card cardModel)
+    {
+        if (model != null)
+        {
+            model.OnChanged -= OnModelChanged;
+        }
+
+        model = cardModel;
+
+        if (model != null)
+        {
+            model.OnChanged += OnModelChanged;
+        }
+
+        UpdateView();
+    }
+
+    private void OnModelChanged(Card c)
+    {
+        UpdateView();
+    }
+
+    private void UpdateView()
+    {
+        if (artworkImage != null && model != null)
+        {
+            artworkImage.sprite = model.CardSprite;
+        }
+
+        // extend here to update texts/icons for value, suit, etc.
+    }
+
+    // Expose model/cardData for HandManager (used for discard)
+    public Card GetModel() => model;
+    public CardData GetCardData() => model?.Data;
 
     // ---------------- Pointer lifecycle (two-stage press) ----------------
 
@@ -239,8 +294,6 @@ public class CardView : MonoBehaviour,
         rt.DOAnchorPos(localPoint, followDuration).SetEase(Ease.OutQuad).SetUpdate(true);
 
         myHandManager?.HandleDragReorder(this, eventData);
-
-        // do NOT reset lastMousePosForStationary here; HoldToZoomFSM compares frame-to-frame movement itself
     }
 
     // ---------------- Hold-to-zoom FSM (frame-to-frame movement) ----------------
@@ -446,5 +499,11 @@ public class CardView : MonoBehaviour,
     private void OnDestroy()
     {
         myHandManager?.RemoveSelected(this);
+
+        if (model != null)
+        {
+            model.OnChanged -= OnModelChanged;
+            model = null;
+        }
     }
 }

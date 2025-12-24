@@ -1,21 +1,60 @@
 using UnityEngine;
 using suitName;
+using System;
+
 public class Card
 {
     private readonly CardData cardData;
-    public Sprite CardSprite { get => cardData.CardSprite;}
-    public int value { get; set;}
-    public int sotrValue { get; set;}
-    public CardSuit suit { get; set;}
 
-        public Card(CardData CD)
+    public Sprite CardSprite => cardData.CardSprite;
+    public CardData Data => cardData;
+
+    // backing fields so we can notify on change
+    private int _value;
+    private int _sotrValue;
+    private CardSuit _suit;
+
+    public int value
     {
-        cardData = CD;
-        suit = CD.suit;
-        value = CD.value;
-        sotrValue = CD.sotrValue;
+        get => _value;
+        set
+        {
+            if (_value == value) return;
+            _value = value;
+            OnChanged?.Invoke(this);
+        }
     }
 
-    
+    public int sotrValue
+    {
+        get => _sotrValue;
+        set
+        {
+            if (_sotrValue == value) return;
+            _sotrValue = value;
+            OnChanged?.Invoke(this);
+        }
+    }
 
+    public CardSuit suit
+    {
+        get => _suit;
+        set
+        {
+            if (_suit == value) return;
+            _suit = value;
+            OnChanged?.Invoke(this);
+        }
+    }
+
+    public Card(CardData CD)
+    {
+        cardData = CD;
+        _suit = CD.suit;
+        _value = CD.value;
+        _sotrValue = CD.sotrValue;
+    }
+
+    // event for view binding
+    public event Action<Card> OnChanged;
 }

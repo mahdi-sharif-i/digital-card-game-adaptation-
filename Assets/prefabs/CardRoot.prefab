@@ -65,7 +65,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -6470460504253458178, guid: fc53ce33fc267234993a2aa5f9a1107c, type: 3}
+  m_Sprite: {fileID: 21300000, guid: fc53ce33fc267234993a2aa5f9a1107c, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -137,6 +137,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   highlightGray: {fileID: 8184147903674576536}
   highlightGold: {fileID: 346820819506191854}
+  artworkImage: {fileID: 0}
   followDuration: 0.06
   hoverScale: 1.2
   hoverAnimDuration: 0.15
@@ -147,6 +148,7 @@ MonoBehaviour:
   holdToZoomTime: 0.5
   moveThreshold: 15
   cancelMoveThreshold: 18
+  stationaryMoveThreshold: 2
   myHandManager: {fileID: 0}
   waitForInitialPlacement: 0
 --- !u!1 &5704094482673682745
