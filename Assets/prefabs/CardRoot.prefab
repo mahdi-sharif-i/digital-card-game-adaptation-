@@ -139,7 +139,7 @@ MonoBehaviour:
   highlightGold: {fileID: 346820819506191854}
   artworkImage: {fileID: 0}
   followDuration: 0.06
-  hoverScale: 1.2
+  hoverScale: 1.1
   hoverAnimDuration: 0.15
   zoomScale: 2.5
   zoomDuration: 0.2

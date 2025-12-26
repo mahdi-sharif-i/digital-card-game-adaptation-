@@ -11,7 +11,7 @@ public class Card
 
     // backing fields so we can notify on change
     private int _value;
-    private int _sotrValue;
+    private int _sortValue;
     private CardSuit _suit;
 
     public int value
@@ -27,11 +27,11 @@ public class Card
 
     public int sotrValue
     {
-        get => _sotrValue;
+        get => _sortValue;
         set
         {
-            if (_sotrValue == value) return;
-            _sotrValue = value;
+            if (_sortValue == value) return;
+            _sortValue = value;
             OnChanged?.Invoke(this);
         }
     }
@@ -52,7 +52,7 @@ public class Card
         cardData = CD;
         _suit = CD.suit;
         _value = CD.value;
-        _sotrValue = CD.sotrValue;
+        _sortValue = CD.sortValue;
     }
 
     // event for view binding

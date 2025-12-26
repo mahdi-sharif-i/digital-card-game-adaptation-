@@ -10,15 +10,10 @@ public class DrawPile : MonoBehaviour
 {
     public static DrawPile Instance { get; private set; }
 
-    [Tooltip("نام فولدر داخل Resources که اسپرايت‌ها در آن قرار می‌گیرند. مثال: Resources/Sprites -> 'Sprites'")]
     [SerializeField] private string resourcesFolder = "Sprites";
-
-    [Tooltip("آیا هنگام Start به‌صورت خودکار پِایل ساخته و شَفِل شود.")]
     [SerializeField] private bool shuffleOnStart = true;
-
     private readonly LinkedList<CardData> pile = new();
     private System.Random rng = new System.Random();
-
     private void Awake()
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
@@ -31,11 +26,7 @@ public class DrawPile : MonoBehaviour
     }
 
     // ---------- API ----------
-
-    // تعداد کارت‌های باقیمانده
     public int Count => pile.Count;
-
-    // برگرداندن کارت بالایی (و حذف آن از پِایل). برمی‌گرداند null اگر پِایل خالی باشد.
     public CardData DrawTop()
     {
         if (pile.Count == 0) return null;
@@ -44,14 +35,12 @@ public class DrawPile : MonoBehaviour
         return first;
     }
 
-    // دور انداختن کارت: به پایین پِایل اضافه می‌شود.
     public void Discard(CardData card)
     {
         if (card == null) return;
         pile.AddLast(card);
     }
 
-    // دور انداختن چند کارت: طبق خواسته شما، قبل از اضافه شدن به ته پِایل، آنها را شَفِل می‌کنیم.
     public void Discard(IEnumerable<CardData> cards)
     {
         if (cards == null) return;
@@ -59,8 +48,6 @@ public class DrawPile : MonoBehaviour
         ShuffleListInPlace(list);
         foreach (var c in list) pile.AddLast(c);
     }
-
-    // شَفِل کامل پِایل (در صورت نیاز)
     public void ShufflePile()
     {
         var arr = pile.ToArray();
@@ -69,20 +56,17 @@ public class DrawPile : MonoBehaviour
         foreach (var c in arr) pile.AddLast(c);
     }
 
-    // پاک کردن و ساخت پِایل پیش‌فرض ۴۰ کارته و شَفِل کردن آن
     public void BuildDefault40AndShuffle()
     {
         BuildDefault40();
         ShufflePile();
     }
 
-    // ساخت ۴ سوئیت × ۱..۱۰ (با تلاش برای بارگذاری اسپرايت‌ها از Resources)
     public void BuildDefault40()
     {
         pile.Clear();
 
         // load sprites from Resources/<resourcesFolder>
-        // (شما باید اسپرايت‌ها را در Assets/Resources/<resourcesFolder> قرار دهید.)
         var sprites = Resources.LoadAll<Sprite>(resourcesFolder);
         var spriteLookup = new Dictionary<string, Sprite>(StringComparer.OrdinalIgnoreCase);
         foreach (var s in sprites) spriteLookup[s.name] = s;
@@ -106,11 +90,11 @@ public class DrawPile : MonoBehaviour
                 spriteLookup.TryGetValue(spriteName, out Sprite sp);
 
                 // create runtime CardData ScriptableObject and fill its serialized backing fields via reflection
-                CardData cd = ScriptableObject.CreateInstance<CardData>();
-                SetAutoPropertyBackingField(cd, "CardSprite", sp);
-                SetAutoPropertyBackingField(cd, "value", v);
-                SetAutoPropertyBackingField(cd, "sotrValue", v); // you can change how sotrValue calculated if needed
-                SetAutoPropertyBackingField(cd, "suit", suit);
+                CardData cd = CardData.CreateCard(sp, v, v, suit);
+                // SetAutoPropertyBackingField(cd, "CardSprite", sp);
+                // SetAutoPropertyBackingField(cd, "value", v);
+                // SetAutoPropertyBackingField(cd, "sotrValue", v); // you can change how sotrValue calculated if needed
+                // SetAutoPropertyBackingField(cd, "suit", suit);
 
                 pile.AddLast(cd);
             }
@@ -143,37 +127,4 @@ public class DrawPile : MonoBehaviour
         }
     }
 
-    // set private backing field for auto-property (<Name>k__BackingField)
-    private void SetAutoPropertyBackingField<TValue>(object target, string propertyName, TValue value)
-    {
-        if (target == null) return;
-        var t = target.GetType();
-        // backing field name pattern for auto property
-        string backingName = $"<{propertyName}>k__BackingField";
-        var f = t.GetField(backingName, BindingFlags.Instance | BindingFlags.NonPublic);
-        if (f != null)
-        {
-            f.SetValue(target, value);
-            return;
-        }
-
-        // fallback: try to find a field with the same name (non-auto)
-        f = t.GetField(propertyName, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-        if (f != null)
-        {
-            f.SetValue(target, value);
-            return;
-        }
-
-        // last resort: try property setter even if non-public
-        var p = t.GetProperty(propertyName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-        if (p != null)
-        {
-            var set = p.GetSetMethod(true);
-            if (set != null)
-            {
-                set.Invoke(target, new object[] { value });
-            }
-        }
-    }
 }
