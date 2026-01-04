@@ -373,7 +373,9 @@ public class CardView : MonoBehaviour,
 
         Sequence seq = DOTween.Sequence();
         seq.Append(transform.DOScale(baseScale, zoomDuration).SetEase(Ease.OutBack));
-        seq.Join(rt.DOAnchorPos(pointerLocal, zoomDuration).SetEase(Ease.OutQuad).SetUpdate(true));
+        //seq.Join(rt.DOAnchorPos(pointerLocal, zoomDuration).SetEase(Ease.OutQuad).SetUpdate(true));
+        rt.DOAnchorPos(pointerLocal, followDuration).SetEase(Ease.OutQuad).SetUpdate(true);
+        
         seq.OnComplete(() =>
         {
             // keep zoomAttemptedThisPress true so no re-zoom during same press
