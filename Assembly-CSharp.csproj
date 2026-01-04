@@ -48,12 +48,14 @@
     <Analyzer Include="C:\Program Files\Unity\Hub\Editor\6000.0.63f1\Editor\Data\Tools\Unity.SourceGenerators\Unity.UIToolkit.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\scripts\Bar\HealthBar.cs" />
     <Compile Include="Assets\scripts\card script\CardData.cs" />
     <Compile Include="Assets\scripts\card script\CardModel.cs" />
     <Compile Include="Assets\scripts\HandManager.cs" />
     <Compile Include="Assets\scripts\DrawPile.cs" />
     <Compile Include="Assets\scripts\card script\suit.cs" />
     <Compile Include="Assets\scripts\card script\CardView.cs" />
+    <Compile Include="Assets\scripts\EnemyPile.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />

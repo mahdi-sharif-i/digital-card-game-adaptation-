@@ -13,6 +13,7 @@ public class CardView : MonoBehaviour,
     [Header("References")]
     [SerializeField] private Image highlightGray;
     [SerializeField] private Image highlightGold;
+    [SerializeField] private Image highlightRed;
 
     [Header("Artwork (optional)")]
     [SerializeField] private Image artworkImage;
@@ -108,7 +109,7 @@ public class CardView : MonoBehaviour,
             var imgs = GetComponentsInChildren<Image>(true);
             foreach (var img in imgs)
             {
-                if (img == highlightGray || img == highlightGold) continue;
+                if (img == highlightGray || img == highlightGold || img == highlightRed) continue;
                 artworkImage = img;
                 break;
             }
@@ -484,11 +485,16 @@ public class CardView : MonoBehaviour,
         HideHighlights();
         if (highlightGold) highlightGold.enabled = true;
     }
-
+    private void ShowRed()
+    {
+        HideHighlights();
+        if (highlightRed) highlightRed.enabled = true;
+    }
     private void HideHighlights()
     {
         if (highlightGray) highlightGray.enabled = false;
         if (highlightGold) highlightGold.enabled = false;
+        if (highlightRed) highlightRed.enabled = false;
     }
 
     // Called by HandManager to mark selection state
