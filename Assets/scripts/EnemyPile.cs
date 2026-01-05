@@ -15,8 +15,11 @@ public class EnemyPile : MonoBehaviour
 
     [SerializeField] private Image TopEnemySprite;
     [SerializeField] private HealthBar EnemyHealthBar;
+    [SerializeField] private DamageBar EnemyDamageBar;
     [SerializeField] private int HP;
     [SerializeField] private int MaxHP;
+    [SerializeField] private int DMG;
+    [SerializeField] private int MaxDMG;
 
 
     private void Awake()
@@ -27,32 +30,61 @@ public class EnemyPile : MonoBehaviour
 
     private void Start()
     {
-        EnemyHealthBar.SetMaxHealth(20);
         BuildCastle();
-        Instance.TopEnemySprite.sprite = Castle.First.Value.CardSprite;
+        EnemySetup();
     }
     private void Update()
     {
         if (Input.GetKeyDown("s"))
             {
-                SufferDamage(3);
+                TakeDamage(5);
             }
         if (Input.GetKeyDown("a"))
             {
-                SufferDamage(1);
+                TakeDamage(1);
+            }
+        if (Input.GetKeyDown("q"))
+            {
+                Shield(1);
+            }        
+        if (Input.GetKeyDown("w"))
+            {
+                Shield(5);
             }
     }
+    void EnemySetup()
+    {
+        MaxHP= Castle.First.Value.value*2;
+        MaxDMG= Castle.First.Value.value;
+        EnemyHealthBar.SetMaxHealth(MaxHP);
+        EnemyDamageBar.SetMaxDamage(MaxDMG);
+        Instance.TopEnemySprite.sprite = Castle.First.Value.CardSprite;
+    }
 
-    // ---------- API ----------
+    // ---------- API (Deal Damage to Enemy and Decrease his Damage, Defeat Enemy)----------
     public int Count => Castle.Count;
-    public void SufferDamage(int dmg)
+    public void TakeDamage(int dmg)
     {
         HP -= dmg;
         HP = Mathf.Clamp(HP,0,MaxHP);
         EnemyHealthBar.SetHealth(HP);
     }
+    public void Shield(int def)
+    {
+        DMG -= def;
+        DMG = Mathf.Clamp(DMG,0,MaxDMG);
+        EnemyDamageBar.SetDamage(DMG);
+    }
+    public CardData DefeatEnemy()
+    {
+       if (Castle.Count == 0) return null;
+        var first = Castle.First.Value;
+        Castle.RemoveFirst();
+        return first;
+    }
+    // ---------- Create ----------
 
-    public void BuildCastle()
+    private void BuildCastle()
     {
         Castle.Clear();
 

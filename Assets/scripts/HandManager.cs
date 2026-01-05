@@ -10,18 +10,19 @@ public class HandManager : MonoBehaviour
     public static HandManager Instance { get; private set; }
 
     [Header("Hand Settings")]
-    [SerializeField] private int maxHandSize = 5;
+    [SerializeField] private int maxHandSize = 8;
     [SerializeField] private GameObject cardPrefab;
     [SerializeField] private RectTransform handParent;
     [SerializeField] private RectTransform spawnPoint;
     [SerializeField] private SplineContainer splineContainer;
 
+
     [Header("Optional fallback CardData list (used if DrawPile missing or empty)")]
     [SerializeField] private List<CardData> cardDatabase = new();
 
     private List<GameObject> handCards = new();
-    private List<CardView> selectedCards = new(); // maintains selection order: first = oldest
-
+    private List<CardView> selectedCards = new();
+    private int discardTargetSum = 10;
     public RectTransform HandParent => handParent;
 
     private void Awake()
@@ -38,45 +39,38 @@ public class HandManager : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            if (selectedCards.Count > 0) DestroySelected();
-            else DrawCard();
+            if (selectedCards.Count > 0) PopSelected();
+            else DrawCard(DrawPile.Instance.DrawTop());
         }
     }
 
     // ---------- Draw ----------
-    public void DrawCard()
+    public void DrawCard(CardData DrawnCard)
     {
-        if (handCards.Count >= maxHandSize)
-        {
-            Debug.Log("[HandManager] Hand full, cannot draw.");
-            return;
-        }
-
         if (cardPrefab == null || handParent == null || spawnPoint == null)
         {
             Debug.LogWarning("[HandManager] Draw aborted: assign cardPrefab, handParent and spawnPoint in Inspector.");
             return;
         }
-
-        CardData chosen = null;
         if (DrawPile.Instance != null)
         {
-            chosen = DrawPile.Instance.DrawTop();
-            if (chosen == null)
+            DrawnCard = DrawPile.Instance.DrawTop();
+            if (DrawnCard == null)
             {
                 Debug.Log("[HandManager] DrawPile empty (DrawTop returned null). Falling back to cardDatabase if any.");
+                return;
             }
         }
 
-        if (chosen == null && cardDatabase != null && cardDatabase.Count > 0)
+        if (DrawnCard == null && cardDatabase != null && cardDatabase.Count > 0)
         {
-            chosen = cardDatabase[Random.Range(0, cardDatabase.Count)];
+            DrawnCard = cardDatabase[Random.Range(0, cardDatabase.Count)];
         }
 
         Card model = null;
-        if (chosen != null)
+        if (DrawnCard != null)
         {
-            model = new Card(chosen);
+            model = new Card(DrawnCard);
         }
 
         GameObject newCard = Instantiate(cardPrefab, handParent, false);
@@ -91,14 +85,12 @@ public class HandManager : MonoBehaviour
         {
             cardRT = newCard.AddComponent<RectTransform>();
         }
-
         cardRT.anchoredPosition = spawnPoint.anchoredPosition;
         cardRT.localScale = Vector3.one;
 
         CardView cv = newCard.GetComponent<CardView>();
         if (cv != null)
         {
-            cv.myHandManager = this;
             cv.SetSelected(false);
             cv.SetInteractable(false);
             cv.waitForInitialPlacement = true;
@@ -119,9 +111,10 @@ public class HandManager : MonoBehaviour
     }
 
     // ---------- Remove / Discard selected ----------
-    public void DestroySelected()
+    public List<CardData> PopSelected()
     {
-        if (selectedCards.Count == 0) return;
+        if (selectedCards.Count == 0) 
+            return new List<CardData>();
 
         List<CardData> toDiscard = new List<CardData>();
         var toDestroy = new List<CardView>(selectedCards);
@@ -130,27 +123,23 @@ public class HandManager : MonoBehaviour
         foreach (var cv in toDestroy)
         {
             if (cv == null) continue;
+            
             CardData cd = null;
-            try { cd = cv.GetCardData(); } catch { cd = null; }
+            try { cd = cv.GetCardData(); } 
+            catch { cd = null; }
 
-            if (cd != null) toDiscard.Add(cd);
+            if (cd != null) 
+                toDiscard.Add(cd);
 
             GameObject go = cv.gameObject;
-            if (handCards.Contains(go)) handCards.Remove(go);
+            if (handCards.Contains(go)) 
+                handCards.Remove(go);
+            
             Destroy(go);
         }
 
-        if (toDiscard.Count > 0 && DrawPile.Instance != null)
-        {
-            if (toDiscard.Count == 1) DrawPile.Instance.Discard(toDiscard[0]);
-            else DrawPile.Instance.Discard(toDiscard);
-        }
-        else if (toDiscard.Count > 0)
-        {
-            Debug.LogWarning("[HandManager] No DrawPile instance found; discarded CardData will not be returned to pile.");
-        }
-
         UpdateCardPositions();
+        return toDiscard;
     }
 
     // ---------- Selection API (updated rules) ----------
@@ -161,73 +150,137 @@ public class HandManager : MonoBehaviour
         else AddSelected(card);
     }
 
-    public void AddSelected(CardView card)
+    private void AddSelected(CardView card)
     {
-        if (card == null) return;
-        if (selectedCards.Contains(card)) return;
+        if (GameManager.Instance.IsPlayMode) AddSelected_ForPlay(card);
+        else AddSelected_ForDiscard(card);
+    }
+    private void AddSelected_ForDiscard(CardView card)
+    {
+        if (card == null || selectedCards.Contains(card)) return;
+        
+        int newCardValue = GetValueFromCardView(card);
+        if (newCardValue == 0) return;
+        
+        int sumBefore = CalculateCurrentSum();
+        bool wasAtOrAboveTarget = (sumBefore >= discardTargetSum);
+        
+        selectedCards.Add(card);
+        card.SetSelected(true);
+        
+        int currentSum = sumBefore + newCardValue;
+        
+        if (wasAtOrAboveTarget || currentSum > discardTargetSum)
+        {
+            var removableCards = GetRemovableCardsExcept(card);
+            
+            bool deselectedAtLeastOne = false;
+            
+            if (wasAtOrAboveTarget && removableCards.Count > 0)
+            {
+                DeselectLowestValueCard(ref currentSum, removableCards);
+                deselectedAtLeastOne = true;
+            }
+            
+            while (currentSum > discardTargetSum && removableCards.Count > 0)
+            {
+                DeselectLowestValueCard(ref currentSum, removableCards);
+            }
+        }
+    }
+    private void AddSelected_ForPlay(CardView card)
+    {
+        if (card == null || selectedCards.Contains(card)) return;
 
         int newVal = GetValueFromCardView(card);
 
-        int wouldBeCount = selectedCards.Count + 1;
-
-        // Exception for "do not deselect others with different value":
-        // If after adding there would be exactly two selected cards and either
-        // the new card or the existing card has value == 1, skip deselecting different-valued cards.
-        bool skipDeselectDiff = false;
-        if (wouldBeCount == 2)
+        // --- Step 1: Handle special case for value == 1 when reaching 2 cards ---
+        bool skipDeselectDifferent = ShouldSkipDeselectWhenAdding(card, newVal);
+        
+        // Deselect cards with different values (unless skipped)
+        if (!skipDeselectDifferent)
         {
-            bool existingHasOne = false;
-            if (selectedCards.Count == 1)
-            {
-                existingHasOne = (GetValueFromCardView(selectedCards[0]) == 1);
-            }
-            if (newVal == 1 || existingHasOne) skipDeselectDiff = true;
+            DeselectCardsWithDifferentValue(newVal);
         }
 
-        // 1) Deselect all previously selected cards that have a different value (unless exception)
-        if (!skipDeselectDiff)
-        {
-            var toDeselectDiff = new List<CardView>();
-            foreach (var sc in selectedCards)
-            {
-                int v = GetValueFromCardView(sc);
-                if (v != newVal) toDeselectDiff.Add(sc);
-            }
-            foreach (var d in toDeselectDiff) RemoveSelected(d);
-        }
-
-        // 2) Add the new card (it becomes most-recent/youngest)
+        // --- Step 2: Add the new card ---
         selectedCards.Add(card);
         card.SetSelected(true);
 
-        // 3) If more than two cards with value == 1 are selected:
-        //    - first, deselect all non-1 cards (as requested)
-        //    - then, if still more than two 1-cards, deselect oldest 1-cards until only two remain.
-        int onesCount = selectedCards.Count(sc => GetValueFromCardView(sc) == 1);
-        if (onesCount > 2)
-        {
-            // deselect non-ones
-            var nonOnes = selectedCards.Where(sc => GetValueFromCardView(sc) != 1).ToList();
-            foreach (var d in nonOnes) RemoveSelected(d);
+        // --- Step 3: Enforce "max two 1s" rule ---
+        EnforceMaxTwoOnes();
 
-            // recompute ones list (preserves order)
-            var onesList = selectedCards.Where(sc => GetValueFromCardView(sc) == 1).ToList();
-
-            // while more than 2 ones, remove oldest (first in selection order)
-            while (onesList.Count > 2)
-            {
-                var oldestOne = onesList[0];
-                RemoveSelected(oldestOne);
-
-                // recompute
-                onesList = selectedCards.Where(sc => GetValueFromCardView(sc) == 1).ToList();
-            }
-        }
-
-        // 4) Enforce sum rule: if sum of values > 10, remove oldest(s) (respecting the 2-with-one exception)
+        // --- Step 4: Enforce sum <= 10 ---
         EnforceSumRuleAfterSelection();
     }
+        // ------------------  Selecting Helpers  ------------------
+    private int CalculateCurrentSum()
+    {
+        int sum = 0;
+        foreach (var sc in selectedCards)
+        {
+            sum += GetValueFromCardView(sc);
+        }
+        return sum;
+    }
 
+    private List<CardView> GetRemovableCardsExcept(CardView exceptCard)
+    {
+        return selectedCards
+            .Where(sc => sc != exceptCard)
+            .OrderBy(sc => GetValueFromCardView(sc))
+            .ThenBy(sc => selectedCards.IndexOf(sc))
+            .ToList();
+    }
+
+    private void DeselectLowestValueCard(ref int currentSum, List<CardView> removableCards)
+    {
+        if (removableCards.Count == 0) return;
+        
+        CardView lowestCard = removableCards[0];
+        int valueToRemove = GetValueFromCardView(lowestCard);
+        
+        currentSum -= valueToRemove;
+        RemoveSelected(lowestCard);
+        removableCards.RemoveAt(0);
+    }
+    private bool ShouldSkipDeselectWhenAdding(CardView newCard, int newVal)
+    {
+        if (selectedCards.Count != 1) return false;
+
+        int existingVal = GetValueFromCardView(selectedCards[0]);
+        return (newVal == 1 || existingVal == 1);
+    }
+
+    private void DeselectCardsWithDifferentValue(int targetValue)
+    {
+        // Important: iterate backwards to safely remove while iterating (or use ToList)
+        var toRemove = selectedCards.Where(sc => GetValueFromCardView(sc) != targetValue).ToList();
+        foreach (var card in toRemove)
+        {
+            RemoveSelected(card);
+        }
+    }
+
+    private void EnforceMaxTwoOnes()
+    {
+        var ones = selectedCards.Where(sc => GetValueFromCardView(sc) == 1).ToList();
+
+        if (ones.Count <= 2) return;
+
+        // Deselect all non-ones first
+        var nonOnes = selectedCards.Except(ones).ToList();
+        foreach (var card in nonOnes)
+        {
+            RemoveSelected(card);
+        }
+
+        // Now, if still more than 2 ones, remove oldest (i.e., earliest in list)
+        while (selectedCards.Count > 2)
+        {
+            RemoveSelected(selectedCards[0]); // oldest
+        }
+    }
     // helper to compute int value from CardView safely
     private int GetValueFromCardView(CardView cv)
     {

@@ -54,7 +54,6 @@ public class CardView : MonoBehaviour,
     private float stationaryMoveThreshold = 2f;
 
     [Header("Manager")]
-    public HandManager myHandManager;
 
     // ---------------- HandManager API (REQUIRED) ----------------
     public bool IsDragging => pointerDown;
@@ -75,6 +74,7 @@ public class CardView : MonoBehaviour,
     // two-stage press model:
     private bool pointerPressed = false;
     private bool pointerDown = false;
+
 
     private float pressStartTime;
     private Vector2 pressStartMousePos;
@@ -102,18 +102,6 @@ public class CardView : MonoBehaviour,
         homePos = rt.anchoredPosition;
         homeRot = rt.localRotation;
         HideHighlights();
-
-        // If artworkImage not assigned, try find a reasonable Image child
-        if (artworkImage == null)
-        {
-            var imgs = GetComponentsInChildren<Image>(true);
-            foreach (var img in imgs)
-            {
-                if (img == highlightGray || img == highlightGold || img == highlightRed) continue;
-                artworkImage = img;
-                break;
-            }
-        }
     }
 
     // -------------- Model binding API --------------
@@ -229,7 +217,7 @@ public class CardView : MonoBehaviour,
 
             if (interactable)
             {
-                myHandManager?.ToggleSelect(this);
+                HandManager.Instance?.ToggleSelect(this);
             }
             return;
         }
@@ -255,7 +243,7 @@ public class CardView : MonoBehaviour,
                 seq.OnComplete(() =>
                 {
                     isZoomed = false;
-                    myHandManager?.UpdateCardPositions();
+                    HandManager.Instance?.UpdateCardPositions();
                 });
             }
             else
@@ -267,7 +255,7 @@ public class CardView : MonoBehaviour,
                 rt.DOAnchorPos(homePos, returnDuration).SetEase(Ease.OutQuad);
                 rt.DOLocalRotateQuaternion(homeRot, returnDuration);
 
-                myHandManager?.UpdateCardPositions();
+                HandManager.Instance?.UpdateCardPositions();
             }
 
             // reset zoomAttempt for next press
@@ -294,7 +282,7 @@ public class CardView : MonoBehaviour,
         rt.DOKill();
         rt.DOAnchorPos(localPoint, followDuration).SetEase(Ease.OutQuad).SetUpdate(true);
 
-        myHandManager?.HandleDragReorder(this, eventData);
+        HandManager.Instance?.HandleDragReorder(this, eventData);
     }
 
     // ---------------- Hold-to-zoom FSM (frame-to-frame movement) ----------------
@@ -449,9 +437,9 @@ public class CardView : MonoBehaviour,
 
     private Vector2 ScreenToLocal(Vector2 screenPos)
     {
-        if (myHandManager == null || myHandManager.HandParent == null) return rt.anchoredPosition;
+        if (HandManager.Instance == null || HandManager.Instance.HandParent == null) return rt.anchoredPosition;
 
-        RectTransform parent = myHandManager.HandParent;
+        RectTransform parent = HandManager.Instance.HandParent;
         Canvas canvas = parent.GetComponentInParent<Canvas>();
         Camera cam = (canvas != null && canvas.renderMode == RenderMode.ScreenSpaceCamera) ? canvas.worldCamera : null;
 
@@ -469,7 +457,8 @@ public class CardView : MonoBehaviour,
             return;
         }
 
-        if (isSelected) ShowGold();
+        if (isSelected && GameManager.Instance.IsPlayMode) ShowGold();
+        else if (isSelected && !GameManager.Instance.IsPlayMode) ShowRed();
         else if (isHover) ShowGray();
         else HideHighlights();
     }
@@ -506,7 +495,7 @@ public class CardView : MonoBehaviour,
 
     private void OnDestroy()
     {
-        myHandManager?.RemoveSelected(this);
+        HandManager.Instance?.RemoveSelected(this);
 
         if (model != null)
         {

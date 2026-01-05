@@ -214,7 +214,7 @@ MonoBehaviour:
   highlightGray: {fileID: 8184147903674576536}
   highlightGold: {fileID: 346820819506191854}
   highlightRed: {fileID: 8909350651825296890}
-  artworkImage: {fileID: 0}
+  artworkImage: {fileID: 86993583138509085}
   followDuration: 0.06
   hoverScale: 1.1
   hoverAnimDuration: 0.15
@@ -226,7 +226,6 @@ MonoBehaviour:
   moveThreshold: 15
   cancelMoveThreshold: 18
   stationaryMoveThreshold: 2
-  myHandManager: {fileID: 0}
   waitForInitialPlacement: 0
 --- !u!1 &5704094482673682745
 GameObject:

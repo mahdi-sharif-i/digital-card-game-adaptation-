@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 using suitName;
 
 [DisallowMultipleComponent]
@@ -10,7 +11,6 @@ public class DrawPile : MonoBehaviour
     public static DrawPile Instance { get; private set; }
 
     [SerializeField] private string resourcesFolder = "Sprites";
-    [SerializeField] private bool shuffleOnStart = true;
     private readonly LinkedList<CardData> pile = new();
     private System.Random rng = new System.Random();
     private void Awake()
@@ -21,33 +21,38 @@ public class DrawPile : MonoBehaviour
 
     private void Start()
     {
-        if (shuffleOnStart) BuildDefault40AndShuffle();
+        BuildDefault40();
+        ShufflePile();
     }
 
     // ---------- API ----------
     public int Count => pile.Count;
+    public Text remainCards;
+    // ---------- API (Drawing And Healing) ----------
+
     public CardData DrawTop()
     {
         if (pile.Count == 0) return null;
         var first = pile.First.Value;
         pile.RemoveFirst();
+        remainCards.text = Count.ToString();
         return first;
     }
-
-    public void Discard(CardData card)
+    public void PutUnderPile(CardData card)
     {
         if (card == null) return;
         pile.AddLast(card);
+        remainCards.text = Count.ToString();
     }
-
-    public void Discard(IEnumerable<CardData> cards)
+    public void PutOnPile(CardData card)
     {
-        if (cards == null) return;
-        var list = cards.Where(c => c != null).ToList();
-        ShuffleListInPlace(list);
-        foreach (var c in list) pile.AddLast(c);
+        if (card == null) return;
+        pile.AddFirst(card);
+        remainCards.text = Count.ToString();
     }
-    public void ShufflePile()
+    // ---------- Creating ----------
+
+    private void ShufflePile()
     {
         var arr = pile.ToArray();
         ShuffleListInPlace(arr);
@@ -55,13 +60,8 @@ public class DrawPile : MonoBehaviour
         foreach (var c in arr) pile.AddLast(c);
     }
 
-    public void BuildDefault40AndShuffle()
-    {
-        BuildDefault40();
-        ShufflePile();
-    }
 
-    public void BuildDefault40()
+    private void BuildDefault40()
     {
         pile.Clear();
 
@@ -99,21 +99,6 @@ public class DrawPile : MonoBehaviour
             }
         }
     }
-
-    // ----------------- Helpers -----------------
-
-    // shuffle in-place for IList<T>
-    private void ShuffleListInPlace<T>(IList<T> list)
-    {
-        int n = list.Count;
-        while (n > 1)
-        {
-            n--;
-            int k = rng.Next(n + 1);
-            (list[k], list[n]) = (list[n], list[k]);
-        }
-    }
-
     // shuffle for arrays
     private void ShuffleListInPlace<T>(T[] arr)
     {
