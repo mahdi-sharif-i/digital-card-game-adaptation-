@@ -1,10 +1,14 @@
 using UnityEngine;
+using System.Collections;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
 
     [SerializeField] private bool isPlayMode = true;
+    [SerializeField] private bool SortMode = true;
+    
+    [SerializeField] private float DrawDelay = 0.15f;
     public bool IsPlayMode
     {
         get => isPlayMode;
@@ -19,78 +23,112 @@ public class GameManager : MonoBehaviour
         }
         Instance = this;
     }
-    // public void DrawCard()
-    // {
-    //     if (handCards.Count >= maxHandSize)
-    //     {
-    //         Debug.Log("[HandManager] Hand full, cannot draw.");
-    //         return;
-    //     }
+    private void Start()
+    {
+        DrawCard(8);
+    }
+    public void DrawCard(int draw)
+    {
+        StartCoroutine(DrawCardCoroutine(draw));
+    }
 
-    //     if (cardPrefab == null || handParent == null || spawnPoint == null)
-    //     {
-    //         Debug.LogWarning("[HandManager] Draw aborted: assign cardPrefab, handParent and spawnPoint in Inspector.");
-    //         return;
-    //     }
+    IEnumerator DrawCardCoroutine(int draw)
+    {
+        for (int i = 0; i < draw; i++)
+        {
+            if (HandManager.Instance.HandSize() >= HandManager.Instance.MaxHandSize())
+            {
+                Debug.Log("[HandManager] Hand full, cannot draw.");
+                yield break;
+            }
 
-    //     CardData chosen = null;
-    //     if (DrawPile.Instance != null)
-    //     {
-    //         chosen = DrawPile.Instance.DrawTop();
-    //         if (chosen == null)
-    //         {
-    //             Debug.Log("[HandManager] DrawPile empty (DrawTop returned null). Falling back to cardDatabase if any.");
-    //             return;
-    //         }
-    //     }
+            if (DrawPile.Instance == null)
+            {
+                Debug.Log("[HandManager] DrawPile Not Find.");
+                yield break;
+            }
 
-    //     if (chosen == null && cardDatabase != null && cardDatabase.Count > 0)
-    //     {
-    //         chosen = cardDatabase[Random.Range(0, cardDatabase.Count)];
-    //     }
+            CardData chosen = DrawPile.Instance.DrawTop();
+            if (chosen == null)
+            {
+                Debug.Log("[HandManager] DrawPile empty (DrawTop returned null).");
+                yield break;
+            }
 
-    //     Card model = null;
-    //     if (chosen != null)
-    //     {
-    //         model = new Card(chosen);
-    //     }
+            HandManager.Instance.DrawCard(chosen);
+            HandManager.Instance.UpdateCardPositions();
 
-    //     GameObject newCard = Instantiate(cardPrefab, handParent, false);
-    //     if (newCard == null)
-    //     {
-    //         Debug.LogError("[HandManager] Instantiate returned null.");
-    //         return;
-    //     }
-
-    //     RectTransform cardRT = newCard.GetComponent<RectTransform>();
-    //     if (cardRT == null)
-    //     {
-    //         cardRT = newCard.AddComponent<RectTransform>();
-    //     }
-
-    //     cardRT.anchoredPosition = spawnPoint.anchoredPosition;
-    //     cardRT.localScale = Vector3.one;
-
-    //     CardView cv = newCard.GetComponent<CardView>();
-    //     if (cv != null)
-    //     {
-    //         cv.SetSelected(false);
-    //         cv.SetInteractable(false);
-    //         cv.waitForInitialPlacement = true;
-    //         cv.SetHomeTransform(cardRT.anchoredPosition, cardRT.localRotation);
-
-    //         if (model != null)
-    //         {
-    //             cv.Bind(model);
-    //         }
-    //     }
-    //     else
-    //     {
-    //         Debug.LogWarning("[HandManager] Instantiated prefab does not contain CardView component.");
-    //     }
-
-    //     handCards.Add(newCard);
-    //     UpdateCardPositions();
-    // }
+            yield return new WaitForSeconds(DrawDelay);
+        }
+    }
+    private void HealCard(int heal)
+    {
+        for(int i = 0; i < heal; i++)
+        {
+            CardData chosen = null;
+            if (DrawPile.Instance != null)
+            {
+                chosen = DiscardPile.Instance.HealCard();
+                if (chosen == null)
+                {
+                    Debug.Log("[HandManager] DiscardPile empty (HealCard returned null).");
+                    return;
+                }
+            }
+            else
+            {
+                    Debug.Log("[HandManager] DrawPile Not Find.");
+                    return;
+            }
+            DrawPile.Instance.PutUnderPile(chosen);
+        }
+        
+    }
+    private void ShieldEnemyAttack(int Shield)
+    {
+        EnemyPile.Instance.Shield(Shield);
+    }
+    private void DealDamage(int damage)
+    {
+        EnemyPile.Instance.TakeDamage(damage);
+    }
+    private void DealDoubleDamage(int damage)
+    {
+        int double_damage = damage *2; 
+        EnemyPile.Instance.TakeDamage(double_damage);
+    }
+    private void playCards()
+    {
+        
+    }
+    private void DiscardCards()
+    {
+        
+    }
+    public void RedrawCards()
+    {
+        HandManager.Instance.DiscardAll();
+        DrawCard(8);
+    }
+    public void SortCards()
+    {
+        if (SortMode)
+        {
+            HandManager.Instance.SortBySuit();
+        }
+        else
+        {
+            HandManager.Instance.SortByValue();
+        }
+        SortMode=!SortMode;
+    }
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            if (HandManager.Instance.SelectedCount() > 0) HandManager.Instance.PopSelected();
+            else DrawCard(3);
+        }
+    }
 
 }

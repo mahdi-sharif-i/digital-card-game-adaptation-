@@ -10,18 +10,86 @@ public class HandManager : MonoBehaviour
     public static HandManager Instance { get; private set; }
 
     [Header("Hand Settings")]
-    [SerializeField] private int maxHandSize = 8;
+    [SerializeField] public int maxHandSize = 8;
     [SerializeField] private GameObject cardPrefab;
     [SerializeField] private RectTransform handParent;
     [SerializeField] private RectTransform spawnPoint;
     [SerializeField] private SplineContainer splineContainer;
 
-
-    [Header("Optional fallback CardData list (used if DrawPile missing or empty)")]
-    [SerializeField] private List<CardData> cardDatabase = new();
-
     private List<GameObject> handCards = new();
+    public int HandSize()
+    {
+        return handCards.Count;
+    }
+        public int MaxHandSize()
+    {
+        return maxHandSize;
+    }
+
+    public void SortBySuit()
+    {
+        handCards = handCards
+            .Where(go => go != null)
+            .Select(go => new { go, keys = GetSortingKeys(go) })
+            .OrderBy(x => x.keys.suit)
+            .ThenBy(x => x.keys.value)
+            .Select(x => x.go)
+            .ToList();
+
+        UpdateCardPositions();
+    }
+
+    public void SortByValue()
+    {
+        handCards = handCards
+            .Where(go => go != null)
+            .Select(go => new { go, keys = GetSortingKeys(go) })
+            .OrderBy(x => x.keys.value)
+            .ThenBy(x => x.keys.suit)
+            .Select(x => x.go)
+            .ToList();
+
+        UpdateCardPositions();
+    }
+    private (int suit, int value) GetSortingKeys(GameObject go)
+    {
+        if (go == null) return (int.MaxValue, int.MaxValue);
+
+        CardView cv = go.GetComponent<CardView>();
+        if (cv == null) return (int.MaxValue, int.MaxValue);
+
+        int suit = int.MaxValue;
+        int value = GetSortValueFromCardView(cv);
+
+        try
+        {
+            var model = cv.GetModel();
+            if (model != null)
+            {
+                suit = (int)model.suit;
+            }
+            else
+            {
+                var cd = cv.GetCardData();
+                if (cd != null)
+                {
+                    suit = (int)cd.suit;
+                }
+            }
+        }
+        catch
+        {
+            
+        }
+
+        return (suit, value);
+    }
     private List<CardView> selectedCards = new();
+
+    public int SelectedCount()
+    {
+        return selectedCards.Count;
+    }
     private int discardTargetSum = 10;
     public RectTransform HandParent => handParent;
 
@@ -35,14 +103,7 @@ public class HandManager : MonoBehaviour
         Instance = this;
     }
 
-    void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            if (selectedCards.Count > 0) PopSelected();
-            else DrawCard(DrawPile.Instance.DrawTop());
-        }
-    }
+
 
     // ---------- Draw ----------
     public void DrawCard(CardData DrawnCard)
@@ -54,17 +115,11 @@ public class HandManager : MonoBehaviour
         }
         if (DrawPile.Instance != null)
         {
-            DrawnCard = DrawPile.Instance.DrawTop();
             if (DrawnCard == null)
             {
                 Debug.Log("[HandManager] DrawPile empty (DrawTop returned null). Falling back to cardDatabase if any.");
                 return;
             }
-        }
-
-        if (DrawnCard == null && cardDatabase != null && cardDatabase.Count > 0)
-        {
-            DrawnCard = cardDatabase[Random.Range(0, cardDatabase.Count)];
         }
 
         Card model = null;
@@ -141,6 +196,46 @@ public class HandManager : MonoBehaviour
         UpdateCardPositions();
         return toDiscard;
     }
+    public List<CardData> DiscardAll()
+    {
+        List<CardData> toDiscard = new List<CardData>();
+
+        var cardsCopy = new List<GameObject>(handCards);
+        foreach (var go in cardsCopy)
+        {
+            if (go == null) continue;
+
+            CardView cv = go.GetComponent<CardView>();
+            CardData cd = null;
+
+            try
+            {
+                if (cv != null) cd = cv.GetCardData();
+            }
+            catch
+            {
+                cd = null;
+            }
+
+            if (cd != null) toDiscard.Add(cd);
+
+            if (cv != null)
+            {
+                if (selectedCards.Contains(cv))
+                    RemoveSelected(cv);
+                else
+                    cv.SetSelected(false);
+            }
+
+            if (handCards.Contains(go)) handCards.Remove(go);
+            Destroy(go);
+        }
+
+        selectedCards.Clear();
+        UpdateCardPositions();
+
+        return toDiscard;
+    }
 
     // ---------- Selection API (updated rules) ----------
     public void ToggleSelect(CardView card)
@@ -174,12 +269,10 @@ public class HandManager : MonoBehaviour
         {
             var removableCards = GetRemovableCardsExcept(card);
             
-            bool deselectedAtLeastOne = false;
             
             if (wasAtOrAboveTarget && removableCards.Count > 0)
             {
                 DeselectLowestValueCard(ref currentSum, removableCards);
-                deselectedAtLeastOne = true;
             }
             
             while (currentSum > discardTargetSum && removableCards.Count > 0)
@@ -296,6 +389,25 @@ public class HandManager : MonoBehaviour
         {
             var cd = cv.GetCardData();
             if (cd != null) return cd.value;
+        }
+        catch { }
+
+        return 0;
+    }
+    private int GetSortValueFromCardView(CardView cv)
+    {
+        if (cv == null) return 0;
+        try
+        {
+            var model = cv.GetModel();
+            if (model != null) return model.sotrValue;
+        }
+        catch { }
+
+        try
+        {
+            var cd = cv.GetCardData();
+            if (cd != null) return cd.sortValue;
         }
         catch { }
 

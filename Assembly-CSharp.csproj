@@ -48,9 +48,11 @@
     <Analyzer Include="C:\Program Files\Unity\Hub\Editor\6000.0.63f1\Editor\Data\Tools\Unity.SourceGenerators\Unity.UIToolkit.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\scripts\Button\JokerButton.cs" />
     <Compile Include="Assets\scripts\Bar\HealthBar.cs" />
     <Compile Include="Assets\scripts\DiscardPile.cs" />
     <Compile Include="Assets\scripts\card script\CardData.cs" />
+    <Compile Include="Assets\scripts\Button\SortButton.cs" />
     <Compile Include="Assets\scripts\card script\CardModel.cs" />
     <Compile Include="Assets\scripts\Bar\DamageBar.cs" />
     <Compile Include="Assets\scripts\HandManager.cs" />
