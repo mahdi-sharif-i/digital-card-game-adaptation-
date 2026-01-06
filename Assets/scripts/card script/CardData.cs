@@ -18,11 +18,4 @@ public class CardData : ScriptableObject
         card.suit = _suit;
         return card;
     }
-    public void Initialize(Sprite sprite, int _value, int _sortValue, CardSuit _suit)
-    {
-        CardSprite = sprite;
-        value = _value;
-        sortValue = _sortValue;
-        suit = _suit;
-    } 
 }

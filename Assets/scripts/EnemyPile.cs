@@ -16,10 +16,10 @@ public class EnemyPile : MonoBehaviour
     [SerializeField] private Image TopEnemySprite;
     [SerializeField] private HealthBar EnemyHealthBar;
     [SerializeField] private DamageBar EnemyDamageBar;
-    [SerializeField] private int HP;
-    [SerializeField] private int MaxHP;
-    [SerializeField] private int DMG;
-    [SerializeField] private int MaxDMG;
+    public int HP{ get; private set; }
+    public int MaxHP{ get; private set; }
+    public int DMG{ get; private set; }
+    public int MaxDMG{ get; private set; }
 
 
     private void Awake()
@@ -33,29 +33,16 @@ public class EnemyPile : MonoBehaviour
         BuildCastle();
         EnemySetup();
     }
-    private void Update()
+    public int enemyRemain()
     {
-        if (Input.GetKeyDown("s"))
-            {
-                TakeDamage(5);
-            }
-        if (Input.GetKeyDown("a"))
-            {
-                TakeDamage(1);
-            }
-        if (Input.GetKeyDown("q"))
-            {
-                Shield(1);
-            }        
-        if (Input.GetKeyDown("w"))
-            {
-                Shield(5);
-            }
+        return Castle.Count;
     }
     void EnemySetup()
     {
         MaxHP= Castle.First.Value.value*2;
         MaxDMG= Castle.First.Value.value;
+        DMG=MaxDMG;
+        HP=MaxHP;
         EnemyHealthBar.SetMaxHealth(MaxHP);
         EnemyDamageBar.SetMaxDamage(MaxDMG);
         Instance.TopEnemySprite.sprite = Castle.First.Value.CardSprite;
@@ -80,8 +67,14 @@ public class EnemyPile : MonoBehaviour
        if (Castle.Count == 0) return null;
         var first = Castle.First.Value;
         Castle.RemoveFirst();
+        EnemySetup();
         return first;
     }
+    public CardSuit immunity()
+    {
+        return Castle.First.Value.suit;
+    }
+
     // ---------- Create ----------
 
     private void BuildCastle()

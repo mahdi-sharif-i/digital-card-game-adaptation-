@@ -4,6 +4,7 @@ using DG.Tweening;
 using UnityEngine;
 using UnityEngine.Splines;
 using UnityEngine.EventSystems;
+using System;
 
 public class HandManager : MonoBehaviour
 {
@@ -90,7 +91,24 @@ public class HandManager : MonoBehaviour
     {
         return selectedCards.Count;
     }
-    private int discardTargetSum = 10;
+    public int SelectedTotal()
+    {
+        int total=0;
+        foreach (CardView card in selectedCards)
+        {
+            total += card.GetCardData().value;
+        }
+        return total;
+    }
+    public int HandTotal()
+    {
+        int total=0;
+        foreach (GameObject card in handCards)
+        {
+            total += card.GetComponent<CardView>().GetCardData().value;
+        }
+        return total;
+    }
     public RectTransform HandParent => handParent;
 
     private void Awake()
@@ -258,14 +276,14 @@ public class HandManager : MonoBehaviour
         if (newCardValue == 0) return;
         
         int sumBefore = CalculateCurrentSum();
-        bool wasAtOrAboveTarget = (sumBefore >= discardTargetSum);
+        bool wasAtOrAboveTarget = (sumBefore >= EnemyPile.Instance.DMG);
         
         selectedCards.Add(card);
         card.SetSelected(true);
         
         int currentSum = sumBefore + newCardValue;
         
-        if (wasAtOrAboveTarget || currentSum > discardTargetSum)
+        if (wasAtOrAboveTarget || currentSum > EnemyPile.Instance.DMG)
         {
             var removableCards = GetRemovableCardsExcept(card);
             
@@ -275,7 +293,7 @@ public class HandManager : MonoBehaviour
                 DeselectLowestValueCard(ref currentSum, removableCards);
             }
             
-            while (currentSum > discardTargetSum && removableCards.Count > 0)
+            while (removableCards.Count > 0 && ((currentSum - GetValueFromCardView(removableCards[0])) >= EnemyPile.Instance.DMG))
             {
                 DeselectLowestValueCard(ref currentSum, removableCards);
             }

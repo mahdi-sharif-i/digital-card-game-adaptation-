@@ -3,12 +3,12 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using DG.Tweening;
 
-public class SortButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerEnterHandler, IPointerExitHandler
+public class PlayButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerEnterHandler, IPointerExitHandler
 {
     [SerializeField] private Image mainButton;
     [SerializeField] private Image pressingButton;
 
-    private bool cancelSort = false;
+    private bool cancelPlay = false;
     private Vector3 originalScale;
     private float scaleFactor = 1.1f;
     private float tweenDuration = 0.2f;
@@ -18,22 +18,27 @@ public class SortButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
         originalScale = transform.localScale;
     }
 
+    public void setButtonActive(bool isActive)
+    {
+        gameObject.SetActive(isActive);
+    }
     public void OnPointerDown(PointerEventData eventData)
     {
         mainButton.enabled = false;
         pressingButton.enabled = true;
-        cancelSort = false;
+        cancelPlay = false;
     }
 
     public void OnPointerUp(PointerEventData eventData)
     {
         mainButton.enabled = true;
         pressingButton.enabled = false;
-        if(!cancelSort)
+        if(!cancelPlay)
         {
-            GameManager.Instance.SortCards();
+            gameObject.SetActive(false);
+            GameManager.Instance.playCards();
         }
-        cancelSort = false;
+        cancelPlay = false;
     }
 
     public void OnPointerEnter(PointerEventData eventData)
@@ -48,6 +53,6 @@ public class SortButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
         mainButton.enabled = true;
         pressingButton.enabled = false;
 
-        cancelSort = true;
+        cancelPlay = true;
     }
 }

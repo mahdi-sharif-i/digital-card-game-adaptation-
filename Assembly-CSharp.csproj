@@ -49,6 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\scripts\Button\JokerButton.cs" />
+    <Compile Include="Assets\scripts\Button\PlayButton.cs" />
     <Compile Include="Assets\scripts\Bar\HealthBar.cs" />
     <Compile Include="Assets\scripts\DiscardPile.cs" />
     <Compile Include="Assets\scripts\card script\CardData.cs" />
@@ -59,6 +60,7 @@
     <Compile Include="Assets\scripts\DrawPile.cs" />
     <Compile Include="Assets\scripts\card script\suit.cs" />
     <Compile Include="Assets\scripts\card script\CardView.cs" />
+    <Compile Include="Assets\scripts\Button\DiscardButton.cs" />
     <Compile Include="Assets\scripts\GameManager.cs" />
     <Compile Include="Assets\scripts\EnemyPile.cs" />
   </ItemGroup>

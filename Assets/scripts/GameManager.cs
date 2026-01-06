@@ -1,12 +1,20 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using suitName;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
+    [SerializeField] private GameObject buttonPlay;
+    [SerializeField] private GameObject buttonDiscard;
+    private List<CardData> playArea=new();
 
-    [SerializeField] private bool isPlayMode = true;
-    [SerializeField] private bool SortMode = true;
+
+    private bool isPlayMode = true;
+    private bool SortMode = true;
+    private bool skipSufferingDamage = false;
     
     [SerializeField] private float DrawDelay = 0.15f;
     public bool IsPlayMode
@@ -26,6 +34,14 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         DrawCard(8);
+    }
+    private void GameLose()
+    {
+        Debug.Log("you lose the game");
+    }
+    private void GameWin()
+    {
+        Debug.Log("you win the game");
     }
     public void DrawCard(int draw)
     {
@@ -90,20 +106,105 @@ public class GameManager : MonoBehaviour
     }
     private void DealDamage(int damage)
     {
-        EnemyPile.Instance.TakeDamage(damage);
+        if (damage > EnemyPile.Instance.HP)
+        {
+            EnemyPile.Instance.TakeDamage(damage);
+            CardData defeatedEnemy=EnemyPile.Instance.DefeatEnemy();
+            DiscardPile.Instance.Discard(defeatedEnemy);
+            DiscardPile.Instance.Discard(playArea);
+            playArea.Clear();
+            skipSufferingDamage=true;
+        }
+        else if(damage == EnemyPile.Instance.HP)
+        {
+            EnemyPile.Instance.TakeDamage(damage);
+            CardData defeatedEnemy=EnemyPile.Instance.DefeatEnemy();
+            DrawPile.Instance.PutOnPile(defeatedEnemy);
+            DiscardPile.Instance.Discard(playArea);
+            playArea.Clear();
+            skipSufferingDamage=true;
+        }
+        else
+        {
+            EnemyPile.Instance.TakeDamage(damage);
+            skipSufferingDamage=false;
+        }
+        if (EnemyPile.Instance.enemyRemain()==0)
+        {
+            GameWin();
+        }
     }
     private void DealDoubleDamage(int damage)
     {
         int double_damage = damage *2; 
-        EnemyPile.Instance.TakeDamage(double_damage);
+        DealDamage(double_damage);
     }
-    private void playCards()
+    public void playCards()
     {
-        
+        List<CardData> playedCard = HandManager.Instance.PopSelected();
+
+        if(playedCard == null || playedCard.Count == 0)
+        {
+            buttonPlay.SetActive(true);
+            return;
+        }
+        int totalValue = playedCard.Sum(card => card.value);
+        List<CardSuit> suits = playedCard.Select(card => card.suit).ToList();
+        skipSufferingDamage=false;
+        if (suits.Contains(CardSuit.Hearts) && (EnemyPile.Instance.immunity() != CardSuit.Hearts))
+        {
+            HealCard(totalValue);
+        }
+        if (suits.Contains(CardSuit.Diamonds) && (EnemyPile.Instance.immunity() != CardSuit.Diamonds))
+        {
+            DrawCard(totalValue);
+        }
+        if (suits.Contains(CardSuit.Spades) && (EnemyPile.Instance.immunity() != CardSuit.Spades))
+        {
+            ShieldEnemyAttack(totalValue);
+        }
+        if (suits.Contains(CardSuit.Clubs) && (EnemyPile.Instance.immunity() != CardSuit.Clubs))
+        {
+            DealDoubleDamage(totalValue);
+        }
+        else
+        {
+            DealDamage(totalValue);
+        }
+        if (skipSufferingDamage || EnemyPile.Instance.DMG==0)
+        {
+            buttonPlay.SetActive(true);
+            isPlayMode=true;
+            return;
+        }
+        int totalHandValue = HandManager.Instance.HandTotal();
+        if (EnemyPile.Instance.DMG > totalHandValue)
+        {
+            GameLose();
+        }
+        playArea.AddRange(playedCard);
+        isPlayMode=false;
+        buttonDiscard.SetActive(true);
+        if (HandManager.Instance.HandSize()==0)
+        {
+            GameLose();
+        }
     }
-    private void DiscardCards()
+    public void DiscardCards()
     {
-        
+        if(EnemyPile.Instance.DMG > HandManager.Instance.SelectedTotal())
+        {
+            buttonDiscard.SetActive(true);
+            return; 
+        }
+        List<CardData> discardedCard = HandManager.Instance.PopSelected();
+        DiscardPile.Instance.Discard(discardedCard);
+        isPlayMode=true;
+        buttonPlay.SetActive(true);
+        if (HandManager.Instance.HandSize()==0)
+        {
+            GameLose();
+        }
     }
     public void RedrawCards()
     {
