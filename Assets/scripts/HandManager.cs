@@ -357,6 +357,7 @@ public class HandManager : MonoBehaviour
     }
     private bool ShouldSkipDeselectWhenAdding(CardView newCard, int newVal)
     {
+        if (selectedCards.Count == 0) return true;
         if (selectedCards.Count != 1) return false;
 
         int existingVal = GetValueFromCardView(selectedCards[0]);
@@ -436,6 +437,7 @@ public class HandManager : MonoBehaviour
     // but skip removal entirely if exactly two cards exist and one has value == 1 (exception)
     private void EnforceSumRuleAfterSelection()
     {
+        if(selectedCards.Count==1)return;
         int sum = selectedCards.Sum(sc => GetValueFromCardView(sc));
 
         bool twoWithOneException = selectedCards.Count == 2 && (

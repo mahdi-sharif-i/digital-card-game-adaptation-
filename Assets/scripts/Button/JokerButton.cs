@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using DG.Tweening;
+using TMPro;
 
 public class JokerButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerEnterHandler, IPointerExitHandler
 {
@@ -13,9 +14,13 @@ public class JokerButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     private float scaleFactor = 1.1f;
     private float tweenDuration = 0.2f;
 
-    public Text remainjokertext;
+    public TMP_Text remainjokertext;
     private int maxJoker=2;
     private int remainJoker;
+    public int RemainJoker()
+    {
+        return remainJoker;
+    }
 
     private void Awake()
     {
@@ -43,13 +48,7 @@ public class JokerButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         pressingButton.enabled = false;
         if(!cancelRedraw)
         {
-            GameManager.Instance.RedrawCards();
-            if(remainJoker<=1)Destroy(gameObject);
-            else
-            {
-                remainJoker--;
-                updateText();
-            }
+            Redraw();
         }
         cancelRedraw = false;
     }
@@ -67,5 +66,15 @@ public class JokerButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         pressingButton.enabled = false;
 
         cancelRedraw = true;
+    }
+    public void Redraw()
+    {
+            GameManager.Instance.RedrawCards();
+            if(remainJoker<=1)Destroy(gameObject);
+            else
+            {
+                remainJoker--;
+                updateText();
+            }
     }
 }

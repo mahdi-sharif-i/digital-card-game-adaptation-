@@ -1,5 +1,5 @@
 using UnityEngine;
-using UnityEngine.UI;
+using TMPro;
 using System.Collections.Generic;
 
 
@@ -10,7 +10,7 @@ public class DiscardPile : MonoBehaviour
     private readonly List<CardData> pile = new();
     
     public int Count => pile.Count;
-    public Text remainCards;
+    public TMP_Text remainCards;
 
 
     private void Awake()

@@ -3,12 +3,14 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using suitName;
+using Unity.VisualScripting;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
     [SerializeField] private GameObject buttonPlay;
     [SerializeField] private GameObject buttonDiscard;
+    [SerializeField] private GameObject buttonJoker;
     private List<CardData> playArea=new();
 
 
@@ -43,10 +45,11 @@ public class GameManager : MonoBehaviour
     {
         Debug.Log("you win the game");
     }
-    public void DrawCard(int draw)
+    public Coroutine DrawCard(int draw)
     {
-        StartCoroutine(DrawCardCoroutine(draw));
+        return StartCoroutine(DrawCardCoroutine(draw));
     }
+
 
     IEnumerator DrawCardCoroutine(int draw)
     {
@@ -139,31 +142,40 @@ public class GameManager : MonoBehaviour
         int double_damage = damage *2; 
         DealDamage(double_damage);
     }
-    public void playCards()
+    public void PlayCardsButton()
+    {
+        StartCoroutine(playCards());
+    }
+    IEnumerator playCards()
     {
         List<CardData> playedCard = HandManager.Instance.PopSelected();
 
-        if(playedCard == null || playedCard.Count == 0)
+        if (playedCard == null || playedCard.Count == 0)
         {
             buttonPlay.SetActive(true);
-            return;
+            yield break;
         }
+
         int totalValue = playedCard.Sum(card => card.value);
         List<CardSuit> suits = playedCard.Select(card => card.suit).ToList();
-        skipSufferingDamage=false;
-        if (suits.Contains(CardSuit.Hearts) && (EnemyPile.Instance.immunity() != CardSuit.Hearts))
+        skipSufferingDamage = false;
+
+        if (suits.Contains(CardSuit.Hearts) && EnemyPile.Instance.immunity() != CardSuit.Hearts)
         {
             HealCard(totalValue);
         }
-        if (suits.Contains(CardSuit.Diamonds) && (EnemyPile.Instance.immunity() != CardSuit.Diamonds))
+
+        if (suits.Contains(CardSuit.Diamonds) && EnemyPile.Instance.immunity() != CardSuit.Diamonds)
         {
-            DrawCard(totalValue);
+            yield return StartCoroutine(DrawCardCoroutine(totalValue));
         }
-        if (suits.Contains(CardSuit.Spades) && (EnemyPile.Instance.immunity() != CardSuit.Spades))
+
+        if (suits.Contains(CardSuit.Spades) && EnemyPile.Instance.immunity() != CardSuit.Spades)
         {
             ShieldEnemyAttack(totalValue);
         }
-        if (suits.Contains(CardSuit.Clubs) && (EnemyPile.Instance.immunity() != CardSuit.Clubs))
+
+        if (suits.Contains(CardSuit.Clubs) && EnemyPile.Instance.immunity() != CardSuit.Clubs)
         {
             DealDoubleDamage(totalValue);
         }
@@ -171,23 +183,30 @@ public class GameManager : MonoBehaviour
         {
             DealDamage(totalValue);
         }
-        if (skipSufferingDamage || EnemyPile.Instance.DMG==0)
+
+        if (skipSufferingDamage || EnemyPile.Instance.DMG == 0)
         {
             buttonPlay.SetActive(true);
-            isPlayMode=true;
-            return;
+            isPlayMode = true;
+            yield break;
         }
+
+        playArea.AddRange(playedCard);
+        isPlayMode = false;
+        buttonDiscard.SetActive(true);
+
         int totalHandValue = HandManager.Instance.HandTotal();
         if (EnemyPile.Instance.DMG > totalHandValue)
         {
-            GameLose();
-        }
-        playArea.AddRange(playedCard);
-        isPlayMode=false;
-        buttonDiscard.SetActive(true);
-        if (HandManager.Instance.HandSize()==0)
-        {
-            GameLose();
+            if (buttonJoker == null || buttonJoker.GetComponent<JokerButton>().RemainJoker()==0)
+            {
+                GameLose();
+            }
+            else
+            {
+                buttonJoker.GetComponent<JokerButton>().Redraw();
+            }
+            yield break;
         }
     }
     public void DiscardCards()
@@ -201,9 +220,17 @@ public class GameManager : MonoBehaviour
         DiscardPile.Instance.Discard(discardedCard);
         isPlayMode=true;
         buttonPlay.SetActive(true);
-        if (HandManager.Instance.HandSize()==0)
+        if (HandManager.Instance.HandSize() == 0)
         {
-            GameLose();
+            if (buttonJoker == null || buttonJoker.GetComponent<JokerButton>().RemainJoker()==0)
+            {
+                GameLose();
+                
+            }
+            else
+            {
+                buttonJoker.GetComponent<JokerButton>().Redraw();
+            }
         }
     }
     public void RedrawCards()

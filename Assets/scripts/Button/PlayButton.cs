@@ -29,17 +29,20 @@ public class PlayButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
         cancelPlay = false;
     }
 
-    public void OnPointerUp(PointerEventData eventData)
+public void OnPointerUp(PointerEventData eventData)
+{
+    mainButton.enabled = true;
+    pressingButton.enabled = false;
+
+    if (!cancelPlay)
     {
-        mainButton.enabled = true;
-        pressingButton.enabled = false;
-        if(!cancelPlay)
-        {
-            gameObject.SetActive(false);
-            GameManager.Instance.playCards();
-        }
-        cancelPlay = false;
+        gameObject.SetActive(false);
+        GameManager.Instance.PlayCardsButton();
     }
+
+    cancelPlay = false;
+}
+
 
     public void OnPointerEnter(PointerEventData eventData)
     {

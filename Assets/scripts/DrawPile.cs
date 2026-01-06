@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.UI;
+using TMPro;
 using suitName;
 
 [DisallowMultipleComponent]
@@ -27,7 +27,7 @@ public class DrawPile : MonoBehaviour
 
     // ---------- API ----------
     public int Count => pile.Count;
-    public Text remainCards;
+    public TMP_Text remainCards;
     // ---------- API (Drawing And Healing) ----------
 
     public CardData DrawTop()
