@@ -196,7 +196,7 @@ public class GameManager : MonoBehaviour
         buttonDiscard.SetActive(true);
 
         int totalHandValue = HandManager.Instance.HandTotal();
-        if (EnemyPile.Instance.DMG > totalHandValue)
+        while (EnemyPile.Instance.DMG > totalHandValue)
         {
             if (buttonJoker == null || buttonJoker.GetComponent<JokerButton>().RemainJoker()==0)
             {
@@ -220,7 +220,7 @@ public class GameManager : MonoBehaviour
         DiscardPile.Instance.Discard(discardedCard);
         isPlayMode=true;
         buttonPlay.SetActive(true);
-        if (HandManager.Instance.HandSize() == 0)
+        while (HandManager.Instance.HandSize() == 0)
         {
             if (buttonJoker == null || buttonJoker.GetComponent<JokerButton>().RemainJoker()==0)
             {

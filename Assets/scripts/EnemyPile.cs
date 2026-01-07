@@ -67,7 +67,7 @@ public class EnemyPile : MonoBehaviour
        if (Castle.Count == 0) return null;
         var first = Castle.First.Value;
         Castle.RemoveFirst();
-        EnemySetup();
+        if (Castle != null && Castle.Count > 0)EnemySetup();
         return first;
     }
     public CardSuit immunity()
