@@ -10,7 +10,6 @@ public class JokerButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     [SerializeField] private Image pressingButton;
 
     private bool cancelRedraw = false;
-    private bool isRedrawing = false;
 
     private Vector3 originalScale;
     private float scaleFactor = 1.1f;
@@ -71,14 +70,12 @@ public class JokerButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     }
     public Coroutine Redraw()
     {
-        if(remainJoker >= 1 && !isRedrawing)
+        if(remainJoker >= 1 && !LogicManager.Instance.IsDrawing)
         {
-            isRedrawing = true;
             remainJoker--;
             updateText();
             return LogicManager.Instance.RedrawCards();
         }
-        isRedrawing = false;
         return null;
     }
 }

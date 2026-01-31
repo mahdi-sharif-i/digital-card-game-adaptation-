@@ -24,6 +24,8 @@ public class LogicManager : MonoBehaviour
         get => isPlayMode;
         set => isPlayMode = value;
     }
+    public bool IsDrawing { get; private set; } = false;
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -45,6 +47,7 @@ public class LogicManager : MonoBehaviour
 
     IEnumerator DrawCardCoroutine(int draw)
     {
+        IsDrawing = true;
         for (int i = 0; i < draw; i++)
         {
             if (HandManager.Instance.HandSize() >= HandManager.Instance.MaxHandSize())
@@ -68,6 +71,7 @@ public class LogicManager : MonoBehaviour
 
             yield return new WaitForSeconds(DrawDelay);
         }
+        IsDrawing = false;
     }
     private void HealCard(int heal)
     {
