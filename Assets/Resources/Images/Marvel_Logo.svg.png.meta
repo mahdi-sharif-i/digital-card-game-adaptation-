@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: fdf5b4158c000d34da2021a0ad2de25d
+guid: 742b25e22427e0c4eb8be3ffd782c2de
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 4728393952403248342
-    second: Group 11_0
+      213: 7926728866309396149
+    second: Marvel_Logo.svg_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -109,17 +109,30 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: iOS
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Group 11_0
+      name: Marvel_Logo.svg_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 150
-        height: 150
+        width: 1280
+        height: 516
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 6d4d9136f31ae9140800000000000000
-      internalID: 4728393952403248342
+      spriteID: 5b6d43308e5610e60800000000000000
+      internalID: 7926728866309396149
       vertices: []
       indices: 
       edges: []
@@ -148,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Group 11_0: 4728393952403248342
+      Marvel_Logo.svg_0: 7926728866309396149
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

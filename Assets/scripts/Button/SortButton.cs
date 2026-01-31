@@ -31,7 +31,7 @@ public class SortButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
         pressingButton.enabled = false;
         if(!cancelSort)
         {
-            GameManager.Instance.SortCards();
+            LogicManager.Instance.SortCards();
         }
         cancelSort = false;
     }

@@ -128,14 +128,12 @@ public class HandManager : MonoBehaviour
     {
         if (cardPrefab == null || handParent == null || spawnPoint == null)
         {
-            Debug.LogWarning("[HandManager] Draw aborted: assign cardPrefab, handParent and spawnPoint in Inspector.");
             return;
         }
         if (DrawPile.Instance != null)
         {
             if (DrawnCard == null)
             {
-                Debug.Log("[HandManager] DrawPile empty (DrawTop returned null). Falling back to cardDatabase if any.");
                 return;
             }
         }
@@ -149,7 +147,6 @@ public class HandManager : MonoBehaviour
         GameObject newCard = Instantiate(cardPrefab, handParent, false);
         if (newCard == null)
         {
-            Debug.LogError("[HandManager] Instantiate returned null.");
             return;
         }
 
@@ -173,10 +170,6 @@ public class HandManager : MonoBehaviour
             {
                 cv.Bind(model);
             }
-        }
-        else
-        {
-            Debug.LogWarning("[HandManager] Instantiated prefab does not contain CardView component.");
         }
 
         handCards.Add(newCard);
@@ -265,7 +258,7 @@ public class HandManager : MonoBehaviour
 
     private void AddSelected(CardView card)
     {
-        if (GameManager.Instance.IsPlayMode) AddSelected_ForPlay(card);
+        if (LogicManager.Instance.IsPlayMode) AddSelected_ForPlay(card);
         else AddSelected_ForDiscard(card);
     }
     private void AddSelected_ForDiscard(CardView card)

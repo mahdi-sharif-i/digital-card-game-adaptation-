@@ -91,6 +91,8 @@ public class CardView : MonoBehaviour,
     // hover/selection
     private bool isHover = false;
     private bool isSelected = false;
+    public static event Action OnToggle;
+
 
     // Model binding
     private Card model;
@@ -457,8 +459,8 @@ public class CardView : MonoBehaviour,
             return;
         }
 
-        if (isSelected && GameManager.Instance.IsPlayMode) ShowGold();
-        else if (isSelected && !GameManager.Instance.IsPlayMode) ShowRed();
+        if (isSelected && LogicManager.Instance.IsPlayMode) ShowGold();
+        else if (isSelected && !LogicManager.Instance.IsPlayMode) ShowRed();
         else if (isHover) ShowGray();
         else HideHighlights();
     }
@@ -489,6 +491,7 @@ public class CardView : MonoBehaviour,
     // Called by HandManager to mark selection state
     public void SetSelected(bool value)
     {
+        OnToggle?.Invoke();
         isSelected = value;
         UpdateHighlight();
     }

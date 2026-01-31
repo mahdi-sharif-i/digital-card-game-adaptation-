@@ -2,12 +2,14 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using DG.Tweening;
+using TMPro;
 
 public class DiscardButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerEnterHandler, IPointerExitHandler
 {
     [SerializeField] private Image mainButton;
     [SerializeField] private Image pressingButton;
 
+    public TMP_Text remainDamagetext;
     private bool cancelDiscard = false;
     private Vector3 originalScale;
     private float scaleFactor = 1.1f;
@@ -18,6 +20,21 @@ public class DiscardButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandl
         originalScale = transform.localScale;
         gameObject.SetActive(false);
 
+    }
+    private void OnEnable()
+    {
+        CardView.OnToggle += UpdateUI;
+        UpdateUI();
+    }
+
+    private void OnDisable()
+    {
+        CardView.OnToggle -= UpdateUI;
+    }
+
+    private void UpdateUI()
+    {
+        remainDamagetext.text = HandManager.Instance.SelectedTotal().ToString() + "/" + EnemyPile.Instance.DMG.ToString();
     }
     public void setButtonActive(bool isActive)
     {
@@ -38,7 +55,8 @@ public class DiscardButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandl
         if(!cancelDiscard)
         {
             gameObject.SetActive(false);
-            GameManager.Instance.DiscardCards();
+            LogicManager.Instance.DiscardCardsButton();
+
         }
         cancelDiscard = false;
     }
