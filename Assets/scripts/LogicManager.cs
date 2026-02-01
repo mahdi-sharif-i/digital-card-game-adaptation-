@@ -44,27 +44,20 @@ public class LogicManager : MonoBehaviour
         return StartCoroutine(DrawCardCoroutine(draw));
     }
 
-
     IEnumerator DrawCardCoroutine(int draw)
     {
         IsDrawing = true;
         for (int i = 0; i < draw; i++)
         {
             if (HandManager.Instance.HandSize() >= HandManager.Instance.MaxHandSize())
-            {
-                yield break;
-            }
+                break;
 
             if (DrawPile.Instance == null)
-            {
-                yield break;
-            }
+                break;
 
             CardData chosen = DrawPile.Instance.DrawTop();
             if (chosen == null)
-            {
-                yield break;
-            }
+                break;
 
             HandManager.Instance.DrawCard(chosen);
             HandManager.Instance.UpdateCardPositions();
@@ -206,6 +199,8 @@ public class LogicManager : MonoBehaviour
             }
             else
             {
+                Debug.Log(buttonJoker.GetComponent<JokerButton>().RemainJoker());
+                Debug.Log(IsDrawing);
                 yield return buttonJoker.GetComponent<JokerButton>().Redraw();
             }
         }

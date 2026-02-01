@@ -48,7 +48,6 @@
     <Analyzer Include="C:\Program Files\Unity\Hub\Editor\6000.0.63f1\Editor\Data\Tools\Unity.SourceGenerators\Unity.UIToolkit.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\scripts\StartMenu\SceneLoader.cs" />
     <Compile Include="Assets\scripts\Button\JokerButton.cs" />
     <Compile Include="Assets\scripts\Button\PlayButton.cs" />
     <Compile Include="Assets\scripts\Bar\HealthBar.cs" />
@@ -56,7 +55,6 @@
     <Compile Include="Assets\scripts\Back Ground\Scroller.cs" />
     <Compile Include="Assets\scripts\card script\CardData.cs" />
     <Compile Include="Assets\scripts\Button\SortButton.cs" />
-    <Compile Include="Assets\scripts\StartMenu\Button.cs" />
     <Compile Include="Assets\scripts\card script\CardModel.cs" />
     <Compile Include="Assets\scripts\Bar\DamageBar.cs" />
     <Compile Include="Assets\scripts\HandManager.cs" />
@@ -66,7 +64,9 @@
     <Compile Include="Assets\scripts\GameManager.cs" />
     <Compile Include="Assets\scripts\Pile\DiscardPile.cs" />
     <Compile Include="Assets\scripts\LogicManager.cs" />
+    <Compile Include="Assets\scripts\Scene Script\Button.cs" />
     <Compile Include="Assets\scripts\Pile\DrawPile.cs" />
+    <Compile Include="Assets\scripts\Scene Script\SceneLoader.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />
@@ -605,6 +605,14 @@
     </Reference>
     <Reference Include="UnityEditor.Apple.Extensions.Common">
       <HintPath>C:\Program Files\Unity\Hub\Editor\6000.0.63f1\Editor\Data\PlaybackEngines\iOSSupport\UnityEditor.Apple.Extensions.Common.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.Android.Types">
+      <HintPath>C:\Program Files\Unity\Hub\Editor\6000.0.63f1\Editor\Data\PlaybackEngines\AndroidPlayer\Unity.Android.Types.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.Android.Gradle">
+      <HintPath>C:\Program Files\Unity\Hub\Editor\6000.0.63f1\Editor\Data\PlaybackEngines\AndroidPlayer\Unity.Android.Gradle.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEditor.iOS.Extensions.Xcode">
