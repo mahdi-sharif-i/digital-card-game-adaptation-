@@ -49,12 +49,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\scripts\Button\JokerButton.cs" />
+    <Compile Include="Assets\scripts\Archive\CardGridSpawner.cs" />
     <Compile Include="Assets\scripts\Button\PlayButton.cs" />
     <Compile Include="Assets\scripts\Bar\HealthBar.cs" />
     <Compile Include="Assets\scripts\Pile\EnemyPile.cs" />
     <Compile Include="Assets\scripts\Back Ground\Scroller.cs" />
     <Compile Include="Assets\scripts\card script\CardData.cs" />
     <Compile Include="Assets\scripts\Button\SortButton.cs" />
+    <Compile Include="Assets\scripts\Archive\CardZoomAndSave.cs" />
     <Compile Include="Assets\scripts\card script\CardModel.cs" />
     <Compile Include="Assets\scripts\Bar\DamageBar.cs" />
     <Compile Include="Assets\scripts\HandManager.cs" />
