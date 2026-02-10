@@ -1,0 +1,46 @@
+using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.EventSystems;
+using DG.Tweening;
+
+public class ContinueButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerEnterHandler, IPointerExitHandler
+{
+    [SerializeField] private Image mainButton;
+    [SerializeField] private Image pressingButton;
+    [SerializeField] private GameObject SettingPanel;
+    private Vector3 originalScale;
+    private float scaleFactor = 1.1f;
+    private float tweenDuration = 0.2f;
+
+    private void Awake()
+    {
+        originalScale = transform.localScale;
+    }
+
+    public void OnPointerDown(PointerEventData eventData)
+    {
+        mainButton.enabled = false;
+        pressingButton.enabled = true;
+    }
+
+    public void OnPointerUp(PointerEventData eventData)
+    {
+        mainButton.enabled = true;
+        pressingButton.enabled = false;
+        SettingPanel.SetActive(false);
+        
+    }
+
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        transform.DOScale(originalScale * scaleFactor, tweenDuration).SetEase(Ease.OutQuad);
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        transform.DOScale(originalScale, tweenDuration).SetEase(Ease.OutQuad);
+
+        mainButton.enabled = true;
+        pressingButton.enabled = false;
+    }
+}

@@ -51,17 +51,20 @@
     <Compile Include="Assets\scripts\Button\JokerButton.cs" />
     <Compile Include="Assets\scripts\Archive\CardGridSpawner.cs" />
     <Compile Include="Assets\scripts\Button\PlayButton.cs" />
+    <Compile Include="Assets\scripts\Archive\ZoomManager.cs" />
     <Compile Include="Assets\scripts\Bar\HealthBar.cs" />
+    <Compile Include="Assets\scripts\Button\ContinueButton.cs" />
+    <Compile Include="Assets\scripts\Archive\SaveButton.cs" />
     <Compile Include="Assets\scripts\Pile\EnemyPile.cs" />
     <Compile Include="Assets\scripts\Back Ground\Scroller.cs" />
     <Compile Include="Assets\scripts\card script\CardData.cs" />
     <Compile Include="Assets\scripts\Button\SortButton.cs" />
-    <Compile Include="Assets\scripts\Archive\CardZoomAndSave.cs" />
     <Compile Include="Assets\scripts\card script\CardModel.cs" />
     <Compile Include="Assets\scripts\Bar\DamageBar.cs" />
     <Compile Include="Assets\scripts\HandManager.cs" />
     <Compile Include="Assets\scripts\card script\suit.cs" />
     <Compile Include="Assets\scripts\card script\CardView.cs" />
+    <Compile Include="Assets\scripts\Archive\CardClick.cs" />
     <Compile Include="Assets\scripts\Button\DiscardButton.cs" />
     <Compile Include="Assets\scripts\GameManager.cs" />
     <Compile Include="Assets\scripts\Pile\DiscardPile.cs" />
@@ -69,6 +72,7 @@
     <Compile Include="Assets\scripts\Scene Script\Button.cs" />
     <Compile Include="Assets\scripts\Pile\DrawPile.cs" />
     <Compile Include="Assets\scripts\Scene Script\SceneLoader.cs" />
+    <Compile Include="Assets\scripts\Button\SettingButton.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />
