@@ -17,12 +17,9 @@
 
 ## فناوری‌ها
 
-* Unity 2022.3 LTS
+* Unity 6.4 (6000.4.8f1)
 * C#
-* Unity Animator
 * DOTween
-* Unity Audio Mixer
-* FMOD *(در صورت نیاز)*
 
 ## اجرای پروژه
 
